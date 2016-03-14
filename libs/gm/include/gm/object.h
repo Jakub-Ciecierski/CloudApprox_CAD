@@ -66,10 +66,10 @@ public:
     //-----------------------------------------------------------//
 
     void move(float dx, float dy, float dz);
-
     void moveTo(float x, float y, float z);
 
     void rotate(float dxAngle, float dyAngle, float dzAngle);
+    void rotateTo(float xAngle, float yAngle, float zAngle);
 
     void scale(float scale);
 

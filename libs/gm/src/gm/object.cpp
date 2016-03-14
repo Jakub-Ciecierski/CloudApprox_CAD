@@ -129,6 +129,14 @@ void Object::rotate(float dxAngle, float dyAngle, float dzAngle) {
     clampAngles();
 }
 
+void Object::rotateTo(float xAngle, float yAngle, float zAngle){
+    rotationAngles.x = xAngle;
+    rotationAngles.y = yAngle;
+    rotationAngles.z = zAngle;
+
+    clampAngles();
+}
+
 void Object::scale(float scale) {
     this->scaleFactor = scale;
 }

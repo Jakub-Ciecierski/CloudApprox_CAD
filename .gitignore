@@ -49,3 +49,10 @@ bundles
 out
 
 core
+apps/editor_qt/build-editor-Desktop-Debug/
+libs/googletest/make/gtest-all.o
+libs/googletest/make/gtest_main.a
+libs/googletest/make/gtest_main.o
+libs/googletest/make/sample1.o
+libs/googletest/make/sample1_unittest
+libs/googletest/make/sample1_unittest.o
