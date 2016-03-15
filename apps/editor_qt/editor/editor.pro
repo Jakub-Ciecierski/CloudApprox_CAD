@@ -25,13 +25,15 @@ SOURCES += glwidget.cpp \
         mainwindow.cpp \
     allobjecttreecreator.cpp \
     objecttreewidget.cpp \
-    controls.cpp
+    controls.cpp \
+    cloudaprox.cpp
 
 HEADERS  += glwidget.h \
     mainwindow.h \
     allobjectstreemanager.h \
     objecttreewidget.h \
-    controls.h
+    controls.h \
+    cloudaprox.h
 
 FORMS    += mainwindow.ui
 
