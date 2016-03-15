@@ -1,0 +1,5 @@
+http://www.opencascade.com/content/bestfit
+
+http://diyhpl.us/~bryan/papers2/cad/surface-reconstruction/Methods%20for%20fitting%20CSG%20models%20to%20point%20clouds%20and%20their%20comparison%20-%20object%20recognition%20from%20point%20clouds.pdf
+
+http://www.math.zju.edu.cn/cagd/Seminar/2007_SpringSummer/2007_spring_master_cj_ref1.pdf
