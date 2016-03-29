@@ -4,14 +4,14 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <gm/cameras/camera_fps.h>
-#include <gm/angle_to_radians.h>
+#include <gm/util/angle_to_radians.h>
 #include <iostream>
 
 using namespace glm;
 
 CameraFPS::CameraFPS() :
         Camera(){
-
+    update();
 }
 
 
@@ -62,11 +62,11 @@ void CameraFPS::moveBackward(float speedBoost) {
 }
 
 void CameraFPS::moveLeft(float speedBoost) {
-    position -= right * (buttonsSpeed / 2) * speedBoost;
+    position -= right * (buttonsSpeed ) * speedBoost;
 }
 
 void CameraFPS::moveRight(float speedBoost) {
-    position += right * (buttonsSpeed / 2) * speedBoost;
+    position += right * (buttonsSpeed / 1) * speedBoost;
 }
 
 void CameraFPS::moveUp(float speedBoost) {
@@ -77,11 +77,15 @@ void CameraFPS::moveDown(float speedBoost) {
     position -= up * (buttonsSpeed * speedBoost);
 }
 
-const glm::mat4 &CameraFPS::getViewMatrix() {
+const vec3& CameraFPS::getDirection(){
+    return this->direction;
+}
+
+const mat4 &CameraFPS::getViewMatrix() {
     return viewMatrix;
 }
 
-const glm::mat4 &CameraFPS::getVPMatrix() {
+const mat4 &CameraFPS::getVPMatrix() {
     return VP;
 
 }

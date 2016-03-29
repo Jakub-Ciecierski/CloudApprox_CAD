@@ -31,8 +31,6 @@ CMakeLists.txt
 
 # QT
 build-editor-Desktop_Qt_5_5_1_GCC_64bit-Debug
-editor.pro.user
-editor.pro.user.*
 
 # Eclipse stuff
 .cproject
@@ -51,10 +49,7 @@ bundles
 out
 
 core
-apps/editor_qt/build-editor-Desktop-Debug/
-libs/googletest/make/gtest-all.o
-libs/googletest/make/gtest_main.a
-libs/googletest/make/gtest_main.o
-libs/googletest/make/sample1.o
-libs/googletest/make/sample1_unittest
-libs/googletest/make/sample1_unittest.o
+
+apps/editor_qt/editor/editor.pro.user
+opencascade
+

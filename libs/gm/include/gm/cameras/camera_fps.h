@@ -5,7 +5,6 @@
 #ifndef MG1_CAMERA_FPS_H
 #define MG1_CAMERA_FPS_H
 
-#include <gm/object.h>
 #include <gm/projections/projection.h>
 #include <gm/cameras/camera.h>
 
@@ -43,6 +42,8 @@ public:
     void moveRight(float speedBoost);
     void moveUp(float speedBoost);
     void moveDown(float speedBoost );
+
+    virtual const glm::vec3& getDirection() override;
 
     const glm::mat4& getVPMatrix();
     virtual const glm::mat4 &getViewMatrix();

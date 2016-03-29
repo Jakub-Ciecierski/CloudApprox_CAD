@@ -83,7 +83,7 @@ file(GLOB_RECURSE FILES
         ${LIBS_PATH}/googletest/include/*.h
 )
 
-set(SPAM libs/gm/src/gm/projections/stereoscopic_projection.cpp libs/gm/include/gm/projections/stereoscopic_projection.h libs/gm/src/gm/cameras/camera_fps_3d.cpp libs/gm/include/gm/cameras/camera_fps_3d.h)
+set(SPAM libs/gm/src/gm/rendering/render_bodies/point.cpp libs/gm/include/gm/rendering/render_bodies/point.h libs/gm/src/gm/rendering/render_bodies/cross.cpp libs/gm/include/gm/rendering/render_bodies/cross.h libs/gm/src/gm/rendering/ray_cast.cpp libs/gm/include/gm/rendering/ray_cast.h libs/gm/src/gm/rendering/render_bodies/axis_net.cpp libs/gm/include/gm/rendering/render_bodies/axis_net.h libs/gm/src/gm/rendering/render_bodies/primitivies/cone.cpp libs/gm/include/gm/rendering/render_bodies/primitivies/cone.h libs/gm/src/gm/rendering/render_bodies/primitivies/sphere.cpp libs/gm/include/gm/rendering/render_bodies/primitivies/sphere.h libs/gm/src/gm/rendering/render_bodies/cloud.cpp libs/gm/include/gm/rendering/render_bodies/cloud.h)
 
 add_executable(${PROJECT_NAME} ${SPAM} ${FILES})
 

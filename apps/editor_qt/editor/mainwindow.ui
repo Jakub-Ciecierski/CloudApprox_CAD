@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>974</width>
-    <height>653</height>
+    <width>1162</width>
+    <height>768</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -423,7 +423,7 @@ QMenu::separator {
           <property name="handleWidth">
            <number>5</number>
           </property>
-          <widget class="ObjectTreeWidget" name="allObjectsTree">
+          <widget class="ObjectsTree" name="objectsListTree">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>1</horstretch>
@@ -448,7 +448,7 @@ QMenu::separator {
             </property>
            </column>
           </widget>
-          <widget class="GLWidget" name="sceneRendererWidget" native="true">
+          <widget class="GLWidget" name="glRendererWidget" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>6</horstretch>
@@ -479,7 +479,7 @@ QMenu::separator {
              <property name="handleWidth">
               <number>5</number>
              </property>
-             <widget class="QTreeWidget" name="sceneTree">
+             <widget class="SceneTree" name="sceneTree">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>7</horstretch>
@@ -531,8 +531,8 @@ QMenu::separator {
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>468</width>
-                    <height>465</height>
+                    <width>566</width>
+                    <height>583</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1182,8 +1182,8 @@ QMenu::separator {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>974</width>
-     <height>27</height>
+     <width>1162</width>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1197,12 +1197,46 @@ QMenu::separator {
     </property>
     <widget class="QMenu" name="menuSettings">
      <property name="title">
-      <string>3D</string>
+      <string>Stereoscopic</string>
      </property>
      <addaction name="actionLeft_Eye_Color"/>
      <addaction name="actionRight_Eye_Color"/>
     </widget>
+    <widget class="QMenu" name="menuColors">
+     <property name="title">
+      <string>Colors</string>
+     </property>
+     <addaction name="actionBackground"/>
+     <addaction name="actionObjects_Color"/>
+    </widget>
+    <widget class="QMenu" name="menuCross">
+     <property name="title">
+      <string>Cross</string>
+     </property>
+     <widget class="QMenu" name="menuColors_2">
+      <property name="title">
+       <string>Colors</string>
+      </property>
+      <addaction name="actionX_Axis"/>
+      <addaction name="actionY_Axis"/>
+      <addaction name="actionZ_Axis"/>
+     </widget>
+     <widget class="QMenu" name="menuVisibility">
+      <property name="title">
+       <string>Visibility</string>
+      </property>
+      <addaction name="separator"/>
+      <addaction name="separator"/>
+      <addaction name="actionShow"/>
+      <addaction name="actionHide"/>
+     </widget>
+     <addaction name="menuColors_2"/>
+     <addaction name="actionGrab_Radius_Sphere"/>
+     <addaction name="menuVisibility"/>
+    </widget>
     <addaction name="menuSettings"/>
+    <addaction name="menuColors"/>
+    <addaction name="menuCross"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -1215,6 +1249,46 @@ QMenu::separator {
   <action name="actionRight_Eye_Color">
    <property name="text">
     <string>Right Eye Color</string>
+   </property>
+  </action>
+  <action name="actionBackground">
+   <property name="text">
+    <string>Background Color</string>
+   </property>
+  </action>
+  <action name="actionObjects_Color">
+   <property name="text">
+    <string>Objects Color</string>
+   </property>
+  </action>
+  <action name="actionX_Axis">
+   <property name="text">
+    <string>X Axis</string>
+   </property>
+  </action>
+  <action name="actionY_Axis">
+   <property name="text">
+    <string>Y Axis</string>
+   </property>
+  </action>
+  <action name="actionZ_Axis">
+   <property name="text">
+    <string>Z Axis</string>
+   </property>
+  </action>
+  <action name="actionGrab_Radius_Sphere">
+   <property name="text">
+    <string>Grab Radius (Sphere)</string>
+   </property>
+  </action>
+  <action name="actionShow">
+   <property name="text">
+    <string>Show</string>
+   </property>
+  </action>
+  <action name="actionHide">
+   <property name="text">
+    <string>Hide</string>
    </property>
   </action>
  </widget>
@@ -1236,9 +1310,14 @@ QMenu::separator {
    </slots>
   </customwidget>
   <customwidget>
-   <class>ObjectTreeWidget</class>
+   <class>ObjectsTree</class>
    <extends>QTreeWidget</extends>
-   <header>objecttreewidget.h</header>
+   <header>widgets/objects_list/objects_tree.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SceneTree</class>
+   <extends>QTreeWidget</extends>
+   <header>widgets/scene_list/scene_tree.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -1246,7 +1325,7 @@ QMenu::separator {
   <connection>
    <sender>threeDCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>sceneRendererWidget</receiver>
+   <receiver>glRendererWidget</receiver>
    <slot>set3DRendering(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1262,7 +1341,7 @@ QMenu::separator {
   <connection>
    <sender>lineEdit</sender>
    <signal>textChanged(QString)</signal>
-   <receiver>sceneRendererWidget</receiver>
+   <receiver>glRendererWidget</receiver>
    <slot>set3DDistance(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1278,7 +1357,7 @@ QMenu::separator {
   <connection>
    <sender>actionLeft_Eye_Color</sender>
    <signal>triggered()</signal>
-   <receiver>sceneRendererWidget</receiver>
+   <receiver>glRendererWidget</receiver>
    <slot>leftEyeColorPicker()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1294,7 +1373,7 @@ QMenu::separator {
   <connection>
    <sender>actionRight_Eye_Color</sender>
    <signal>triggered()</signal>
-   <receiver>sceneRendererWidget</receiver>
+   <receiver>glRendererWidget</receiver>
    <slot>rightEyeColorPicker()</slot>
    <hints>
     <hint type="sourcelabel">

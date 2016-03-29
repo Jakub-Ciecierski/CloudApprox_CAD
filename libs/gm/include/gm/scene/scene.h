@@ -6,23 +6,29 @@
 #define MG1_SCENE_H
 
 #include <gm/color/color.h>
-#include <gm/rendering/render_object.h>
+
 #include <gm/cameras/camera_std.h>
 #include <gm/projections/stereoscopic_projection.h>
+#include <gm/rendering/render_body.h>
+#include <gm/rendering/render_bodies/cross.h>
 #include "gm/scene/scene_id.h"
 #include "gm/scene/scene_id_factory.h"
 
 /*
  * Scene is responsible for deallocating all objects in the scene
  */
-class Scene : public Object{
+class Scene : public RigidBody{
 private:
     //-----------------------------------------------------------//
     //  PRIVATE FIELDS
     //-----------------------------------------------------------//
 
-    std::vector<RenderObject*> sceneObjects;
+    Cross* cross;
 
+    std::vector<RenderBody*> sceneObjects;
+    std::vector<SceneID> ids;
+
+    RenderBody* activeRenderBody;
     std::vector<Camera*> cameras;
     Camera* activeCamera;
 
@@ -53,30 +59,40 @@ public:
     //  PUBLIC METHODS
     //-----------------------------------------------------------//
 
+    //--------------------//
+    //  SETTERS
+    //--------------------//
+
     /*
      * After the object is added to the scene, the Scene takes ownership
      * and deallocates its memory when needed.
      *
      * Returns an unique ID of the object in the scene.
      */
-    SceneID addRenderObject(RenderObject* object);
+    SceneID addRenderObject(RenderBody* object);
+
+    void setActiveRenderBody(const SceneID& id);
 
     /*
      * The camera is taken to the ownership of the scene
      */
-    SceneID addCamera(Camera*);
+    void addCamera(Camera*);
 
     bool setActiveCamera(Camera *);
     bool setActiveCamera(const SceneID &);
 
-    bool removeObject(Object* object);
+    bool removeObject(RigidBody* object);
     bool removeObject(const SceneID& sceneID);
 
     void setColor(Color color);
 
     void set3DRendering(bool v);
 
-    const std::vector<RenderObject*>& getRenderObjects();
+    //--------------------//
+    //  GETTERS
+    //--------------------//
+
+    const std::vector<RenderBody*>& getRenderObjects();
     const std::vector<Camera *>& getCameras();
 
     Camera* getActiveCamera();
@@ -84,6 +100,14 @@ public:
     const Color& getColor();
 
     const glm::mat4& getMVP();
+
+    RenderBody* getRenderBody(const SceneID& id);
+
+    SceneID getNextAvailableID();
+
+    RenderBody* getActiveRenderBody();
+
+    Cross* getCross();
 
     void renderScene();
 

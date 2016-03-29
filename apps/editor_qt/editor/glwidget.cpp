@@ -1,11 +1,14 @@
-#include "mainwindow.h"
+#include "editor_window.h"
 #include "glwidget.h"
 #include <iostream>
 
 #include <gm/color/color.h>
 #include <gm/color/color_convertor.h>
-#include <gm/objects/torus.h>
-#include <gm/objects/cube.h>
+#include "gm/rendering/render_body.h"
+
+#include <gm/rendering/render_bodies/torus.h>
+#include <gm/rendering/render_bodies/cross.h>
+#include <gm/rendering/render_bodies/cube.h>
 #include <gm/projections/perspective_projection.h>
 #include <gm/projections/stereoscopic_projection.h>
 #include <gm/projections/indentity_projection.h>
@@ -15,6 +18,8 @@
 #include <QColorDialog>
 #include <QMessageBox>
 #include <QLineEdit>
+
+#include "ui_mainwindow.h"
 
 bool keys[1024];
 const int KEY_W = 0;
@@ -37,23 +42,28 @@ GLWidget::GLWidget(QWidget* parent) :
     startMainLoop();
 
     isMouseDrag = false;
+    isRightMouseDrag = false;
 }
 
 GLWidget::~GLWidget(){
     delete renderer;
+    delete ray;
 }
 
 void GLWidget::setupRenderer(){
     scene = new Scene();
 
-    Projection* perspectiveProjection = new PerspectiveProjection(1.0f);
-
     Projection* stereoscopicProjection = new StereoscopicProjection(1.0f, 0.06);
     CameraFPS* fpsCamera = new CameraFPS(stereoscopicProjection);
     fpsCamera->move(0,0,0);
+
     scene->addCamera(fpsCamera);
     scene->setActiveCamera(fpsCamera);
 
+    ray = new RayCast(fpsCamera);
+
+
+/*
     Torus* t = new Torus(0.4, 0.3, 100, 100);
     Torus* tt = new Torus(0.2, 0.1);
     Torus* tt1 = new Torus(0.2, 0.1);
@@ -69,7 +79,7 @@ void GLWidget::setupRenderer(){
     scene->addRenderObject(tt1);
     scene->addRenderObject(tt2);
     scene->addRenderObject(tt3);
-
+*/
 
     renderer = new Renderer(scene);
 }
@@ -183,6 +193,13 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event){
 void GLWidget::mousePressEvent(QMouseEvent *event){
 
     if(event->buttons() & Qt::LeftButton){
+        float xGL = renderer->xPixelToGLCoord(event->pos().x());
+        float yGL = renderer->yPixelToGLCoord(event->pos().y());
+        ray->update(xGL, yGL);
+
+        Cross* cross = renderer->getScene()->getCross();
+        cross->scanAndMoveToClosestObject(*ray, renderer->getWindowWidth(), renderer->getWindowHeight());
+
         mouseDragPosition = event->pos();
         isMouseDrag = true;
     }
@@ -224,37 +241,62 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event){
     }
     // Move along axis
     if(isRightMouseDrag){
-        Camera* camera = renderer->getScene()->getActiveCamera();
+        Cross* cross = renderer->getScene()->getCross();
 
         //int dx = event->x() - rightMouseDragPosition.x();
         int dy = event->y() - rightMouseDragPosition.y();
 
         // Z
         if(event->modifiers() & Qt::ControlModifier){
-            camera->move(0, 0, (float)dy * moveDist);
+            cross->move(0, 0, (float)dy * moveDist);
         }
         // Y
         else if(event->modifiers() & Qt::ShiftModifier){
-            camera->move(0, (float)dy * moveDist, 0);
+            cross->move(0, (float)dy * moveDist, 0);
         }
         // X
         else{
-            camera->move((float)dy * moveDist, 0, 0);
+            cross->move((float)dy * moveDist, 0, 0);
         }
-
+        updateCrossView();
 
         rightMouseDragPosition = event->pos();
     }
+}
+
+void GLWidget::updateCrossView(){
+    Cross* cross = renderer->getScene()->getCross();
+    // -------------------------------------------
+    const glm::vec3& pos = cross->getPosition();
+    EditorWindow& m = EditorWindow::getInstance();
+    Ui::MainWindow* ui = m.getUI();
+
+    ui->positionXInput->setText(QString::number(pos.x, 'f', 2));
+    ui->positionYInput->setText(QString::number(pos.y, 'f', 2));
+    ui->positionZInput->setText(QString::number(pos.z, 'f', 2));
+
+    const glm::vec3& bodyProjectedPosition = cross->getProjectedPosition();
+
+    int pX = renderer->xGLToPixelCoord(bodyProjectedPosition.x);
+    int pY = renderer->yGLToPixelCoord(bodyProjectedPosition.y);
+    ui->angleXInput->setText(QString::number(pX));
+    ui->angleYInput->setText(QString::number(pY));
+
+    // -------------------------------------------
 }
 
 bool GLWidget::do_movement(){
     bool changed = false;
 
     CameraFPS* camera = (CameraFPS*)renderer->getScene()->getActiveCamera();
+    Cross* cross = renderer->getScene()->getCross();
 
-    float speedBoost = 0.6f;
+    float speedBoost = 0.3f;
     if(keys[KEY_SPACE]){
         speedBoost = 3.0f;
+        cross->activateGrab();
+    }else{
+        cross->deactivateGrab();
     }
 
     if(keys[KEY_W]){
@@ -274,11 +316,11 @@ bool GLWidget::do_movement(){
         changed = true;
     }
     if(keys[KEY_Q]){
-        camera->moveDown(speedBoost/3);
+        camera->moveDown(speedBoost);
         changed = true;
     }
     if(keys[KEY_E]){
-        camera->moveUp(speedBoost/3);
+        camera->moveUp(speedBoost);
         changed = true;
     }
     if(keys[KEY_MINUS]){
@@ -303,6 +345,10 @@ void GLWidget::wheelEvent(QWheelEvent* event){
     renderer->getScene()->scaleDt(x*speedBoost);
 };
 
+Renderer* GLWidget::getRenderer(){
+    return this->renderer;
+}
+
 //-----------------------------------------------------------//
 //  OPENGL
 //-----------------------------------------------------------//
@@ -315,6 +361,8 @@ void GLWidget::paintGL(){
     do_movement();
     renderer->update();
     renderer->render();
+
+    //ray->render(renderer->getScene()->getMVP());
 }
 
 void GLWidget::resizeGL(int width, int height){
@@ -372,6 +420,12 @@ void GLWidget::rightEyeColorPicker(){
     Color gmColor = QColorToGMColor(qcolor);
 
     projection->setRightColor(gmColor);
+}
+
+void GLWidget::moveObject(const SceneID& id, glm::vec3& pos){
+    RenderBody* body = scene->getRenderBody(id);
+
+    body->moveTo(pos);
 }
 
 #include "moc_glwidget.cpp"

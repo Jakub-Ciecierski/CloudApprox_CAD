@@ -5,12 +5,24 @@
 #include <gm/scene/scene.h>
 #include <gm/color/color_settings.h>
 #include <GL/gl.h>
+#include <gm/rendering/render_bodies/axis_net.h>
+#include <gm/rendering/render_bodies/primitivies/cone.h>
+#include <gm/rendering/render_bodies/primitivies/sphere.h>
 
 using namespace glm;
 
 Scene::Scene() :
         sceneColor(COLOR_SCENE_DEFAULT), sceneIDFactory(){
     set3DRendering(false);
+
+    AxisNet* axisNet = new AxisNet(50);
+    this->addRenderObject(axisNet);
+
+    cross = new Cross(&this->sceneObjects);
+    this->addRenderObject(cross);
+
+    Sphere* sphere = new Sphere(0.5, 50, 50);
+    this->addRenderObject(sphere);
 }
 
 Scene::~Scene() {
@@ -42,9 +54,6 @@ void Scene::renderAllObjects3D() {
             = (const StereoscopicProjection*)activeCamera->getProjection();
     mat4 MV = activeCamera->getViewMatrix() * getModelMatrix();
 
-    //mat4 leftMVP = projection->getLeftProjectionMatrix() * MV;
-    //mat4 rightMVP = projection->getRightProjectionMatrix() * MV;
-
     mat4 leftMVP = projection->getLeftProjectionMatrix() *
             activeCamera->getViewMatrix() * getModelMatrix();
     mat4 rightMVP = projection->getRightProjectionMatrix() *
@@ -72,18 +81,24 @@ void Scene::renderAllObjects3D() {
 //  SETTERS
 //--------------------//
 
-SceneID Scene::addRenderObject(RenderObject *object) {
-    this->sceneObjects.push_back(object);
-
+SceneID Scene::addRenderObject(RenderBody *object) {
     SceneID id = sceneIDFactory.createNextAvailableID();
+
+    this->sceneObjects.push_back(object);
+    ids.push_back(id);
+
     return id;
 }
 
-SceneID Scene::addCamera(Camera *camera) {
-    cameras.push_back(camera);
+void Scene::setActiveRenderBody(const SceneID& id){
+    activeRenderBody = getRenderBody(id);
+}
+RenderBody* Scene::getActiveRenderBody(){
+    return activeRenderBody;
+}
 
-    SceneID id = sceneIDFactory.createNextAvailableID();
-    return id;
+void Scene::addCamera(Camera *camera) {
+    cameras.push_back(camera);
 }
 
 bool Scene::setActiveCamera(Camera *camera) {
@@ -96,7 +111,7 @@ bool Scene::setActiveCamera(const SceneID &id) {
     return false;
 }
 
-bool Scene::removeObject(Object *object) {
+bool Scene::removeObject(RigidBody *object) {
     for(unsigned int i = 0; i < sceneObjects.size(); i++){
         if (object == sceneObjects[i]){
             sceneObjects.erase(sceneObjects.begin()+i);
@@ -107,6 +122,13 @@ bool Scene::removeObject(Object *object) {
 }
 
 bool Scene::removeObject(const SceneID &sceneID) {
+    for(unsigned int i = 0; i < sceneObjects.size(); i++){
+        if(ids[i].getKey() == sceneID.getKey()){
+            ids.erase(ids.begin() + i);
+            sceneObjects.erase(sceneObjects.begin() + i);
+            return true;
+        }
+    }
     return false;
 }
 
@@ -127,7 +149,7 @@ void Scene::set3DRendering(bool v) {
 //  GETTERS
 //--------------------//
 
-const std::vector<RenderObject*>& Scene::getRenderObjects() {
+const std::vector<RenderBody*>& Scene::getRenderObjects() {
     return this->sceneObjects;
 }
 
@@ -149,6 +171,23 @@ const glm::mat4& Scene::getMVP() {
     return this->MVP;
 }
 
+RenderBody* Scene::getRenderBody(const SceneID& id){
+    for(unsigned int i = 0; i < sceneObjects.size(); i++){
+        if (id.getKey() == ids[i].getKey()){
+            return sceneObjects[i];
+        }
+    }
+    return NULL;
+}
+
+SceneID Scene::getNextAvailableID(){
+    return this->sceneIDFactory.getNextAvailableID();
+}
+
+Cross* Scene::getCross(){
+    return this->cross;
+}
+
 //--------------------//
 //  PUBLIC
 //--------------------//
@@ -165,7 +204,7 @@ void Scene::renderScene() {
 }
 
 void Scene::update() {
-    Object::update();
+    RigidBody::update();
 
     activeCamera->update();
     for(unsigned int i = 0; i < sceneObjects.size(); i++){
